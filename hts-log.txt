@@ -59,7 +59,7 @@ note:	the hts-log.txt file, and hts-cache folder, may contain sensitive informat
 16:52:24	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://framerusercontent.com/sites/3IMKteN1GQ0roUwlfGKmcj/chunk-2HTEB2GM.mjs
 16:52:24	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://framerusercontent.com/sites/3IMKteN1GQ0roUwlfGKmcj/chunk-ZZXR7HSS.mjs
 16:52:24	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://framerusercontent.com/sites/3IMKteN1GQ0roUwlfGKmcj/chunk-O3EMSAYH.mjs
-16:52:25	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://dillonmercz.github.io/blitz-clone/framerusercontent.com/images/logo.png
+16:52:25	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://overdogbets.com/logo.png
 16:52:25	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://framerusercontent.com/images/NEzUams6DrYZ4137kz0kA2P7U.jpg
 16:52:27	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://framerusercontent.com/images/4BEe4YSh86k7zdBwzjJbA0iYBoQ.png
 16:52:27	Warning: 	File seems complete (same size), but there was a cache read error (4294967295): https://framerusercontent.com/images/7yPXqgN5zVMqDPAdumH2nNHEqA.png?scale-down-to=512
