@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Predictions & Results</title>
+    <style>
+        @font-face {
+            font-family: 'Montserrat Alt1';
+            src: url('./MontserratAlt1-Light.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-accent: #1a1a24;
+            --accent: #2cf583;
+            --accent-hover: #33FFFF;
+            --accent-dark: #00cccc;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(0, 255, 255, 0.1);
+            --glow: 0 0 20px rgba(0, 255, 255, 0.2);
+            --glow-strong: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat Alt1', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            padding: 2rem 0;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            box-shadow: var(--glow);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        .control-panel {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .date-input, .filter-input {
+            background: var(--bg-accent);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            flex: 1;
+            max-width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        .date-input:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+        
+        .search-btn {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .search-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+            box-shadow: var(--glow-strong);
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-accent);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .matches-table {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+        }
+        
+        .matches-table table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .matches-table th {
+            background: var(--bg-accent);
+            color: var(--accent);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .matches-table td {
+            padding: 1.25rem 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .matches-table tr {
+            transition: all 0.3s ease;
+        }
+        
+        .matches-table tbody tr:hover {
+            background-color: var(--bg-accent);
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+
+        /* Loading and error states */
+        .loading, .error {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            color: #ff4444;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-dark);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .control-panel {
+                padding: 1.5rem;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+            }
+            
+            .date-input, .filter-input {
+                max-width: 100%;
+            }
+            
+            .matches-table {
+                overflow-x: auto;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+        }
+         .side-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: var(--glow);
+            overflow-x: hidden;
+        }
+
+        .side-drawer:not(.mobile) {
+            width: 64px;
+        }
+
+        .side-drawer:not(.mobile):hover,
+        .side-drawer:not(.mobile).open {
+            width: 256px;
+        }
+
+        .side-drawer.mobile {
+            width: 256px;
+            transform: translateX(-100%);
+        }
+
+        .side-drawer.mobile.open {
+            transform: translateX(0);
+        }
+
+        .drawer-header {
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-title {
+            color: var(--accent);
+            font-size: 1.25rem;
+            font-weight: 300;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .side-drawer:not(.mobile):not(.open):not(:hover) .drawer-title {
+            opacity: 0;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-btn:hover {
+            color: var(--accent-hover);
+        }
+
+        .drawer-content {
+            padding: 16px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-primary);
+            border-left: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-accent);
+            border-left-color: var(--accent);
+        }
+
+        .nav-icon {
+            color: var(--accent);
+            transition: color 0.3s ease;
+            min-width: 24px;
+        }
+
+        .nav-item:hover .nav-icon {
+            color: var(--accent-hover);
+        }
+
+        .nav-label {
+            margin-left: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .side-drawer:not(.mobile):not(.open):not(:hover) .nav-label {
+            opacity: 0;
+        }
+
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 1001;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-btn:hover {
+            color: var(--accent-hover);
+            box-shadow: var(--glow);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .overlay.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header class="header">
+            <center><img src="https://overdogbets.com/logo.png" style="width:20%"></center>
+            <h1>SOCCER PREDICTIONS</h1>
+        </header>
+        <button class="hamburger-btn" aria-label="Toggle Menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <div class="overlay"></div>
+
+<nav class="side-drawer">
+        <div class="drawer-header">
+            <span class="drawer-title">Sports</span>
+            <button class="toggle-btn" aria-label="Toggle Drawer">
+                <svg class="chevron-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+            </button>
+        </div>
+        <div class="drawer-content">
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 2a10 10 0 0 1 10 10"></path>
+                    <path d="M12 12l4 2"></path>
+                </svg>
+                <span class="nav-label">NBA</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v8"></path>
+                    <path d="M4 10h16"></path>
+                    <path d="M4 14h16"></path>
+                    <path d="M6 18h12"></path>
+                    <path d="M8 22h8"></path>
+                </svg>
+                <span class="nav-label">NHL</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 8c2.2 0 4 1.8 4 4s-1.8 4-4 4-4-1.8-4-4 1.8-4 4-4z"></path>
+                    <line x1="12" y1="2" x2="12" y2="4"></line>
+                    <line x1="12" y1="20" x2="12" y2="22"></line>
+                </svg>
+                <span class="nav-label">Tennis</span>
+            </a>
+            <a href="#" class="nav-item">
+                <svg class="nav-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M12 6v8"></path>
+                    <path d="M8 10h8"></path>
+                </svg>
+                <span class="nav-label">Soccer</span>
+            </a>
+        </div>
+    </nav>
+        <section class="control-panel">
+            <div class="search-controls">
+                <input type="date" id="datePicker" class="date-input">
+                <input type="text" id="tableFilter" placeholder="Filter by team..." class="filter-input">
+                <button id="fetchButton" class="search-btn">Search Matches</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="accuracyValue">-</div>
+                    <div class="stat-label">Accuracy Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPredictions">-</div>
+                    <div class="stat-label">Total Matches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="correctPredictions">-</div>
+                    <div class="stat-label">Correct</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="matches-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Home Team</th>
+                        <th>Away Team</th>
+                        <th>Prediction</th>
+                        <th>Result</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="predictionsResultsBody">
+                    <!-- Dynamic content will be inserted here -->
+                </tbody>
+            </table>
+        </section>
+
+        <div id="loading" class="loading" style="display: none;">
+            Loading...
+        </div>
+
+        <div id="error" class="error" style="display: none;">
+        </div>
+    </div>
+    <script src="./drawer.js"></script>
+    <script>
+
+        const sofascoreApiUrl = 'https://www.sofascore.com/api/v1/sport/football/scheduled-events/';
+        let matchedPredictions = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const datePicker = document.getElementById('datePicker');
+            const fetchButton = document.getElementById('fetchButton');
+            const tableFilter = document.getElementById('tableFilter');
+
+            // Set the default date to today
+            const today = new Date().toISOString().split('T')[0];
+            datePicker.value = today;
+
+            fetchButton.addEventListener('click', () => {
+                fetchData(datePicker.value);
+            });
+
+            tableFilter.addEventListener('input', filterTable);
+
+            // Initial data fetch
+            fetchData(today);
+        });
+
+        async function fetchData(date) {
+            console.log(`Fetching new data for ${date}...`);
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+
+                // Fetch predictions from Overdog API
+                const predictionResponse = await fetch(`https://cdn.overdogbets.com/pussy/predictions/soccer/${date}.json`);
+                const predictionData = await predictionResponse.json();
+                console.log("Raw Predictions Data:", predictionData);
+
+                // Ensure we have an array of predictions
+                const predictions = Array.isArray(predictionData) ? predictionData : 
+                                  predictionData.predictions ? predictionData.predictions :
+                                  predictionData.data ? predictionData.data : [];
+
+                console.log("Processed Predictions:", predictions);
+
+                // Fetch results from SofaScore
+                const resultResponse = await fetch(`${sofascoreApiUrl}${date}`);
+                const resultData = await resultResponse.json();
+                let results = [];
+                if (resultData && Array.isArray(resultData.events)) {
+                    results = resultData.events;
+                    console.log("Results:", results);
+                } else {
+                    console.error("Unexpected result data format:", resultData);
+                }
+
+                // Match predictions with results
+                matchedPredictions = matchPredictionsWithResults(predictions, results);
+
+                displayPredictionsAndResults();
+                updateAccuracyAndStats();
+
+                document.getElementById('loading').style.display = 'none';
+            } catch (err) {
+                console.error("Fetch error:", err);
+                document.getElementById('error').textContent = 'Failed to fetch data: ' + err.message;
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                matchedPredictions = [];
+            }
+        }
+
+        function matchPredictionsWithResults(predictions, results) {
+            if (!Array.isArray(predictions)) {
+                console.error("Predictions is not an array:", predictions);
+                return [];
+            }
+
+            return predictions.map(prediction => {
+                // Log the prediction object to see its structure
+                console.log("Processing prediction:", prediction);
+
+                // Try to extract team names accounting for different possible property names
+                const homeTeam = prediction.home_team || prediction.HomeTeam || prediction.homeTeam;
+                const awayTeam = prediction.away_team || prediction.AwayTeam || prediction.awayTeam;
+
+                if (!homeTeam || !awayTeam) {
+                    console.log("Missing team names in prediction:", prediction);
+                    return null;
+                }
+
+                const result = findMatchingResult(homeTeam, awayTeam, results);
+                if (result) {
+                    return {
+                        home_team: homeTeam,
+                        away_team: awayTeam,
+                        prediction: prediction.prediction || prediction.Prediction || prediction.pred,
+                        home_probability: parseFloat(prediction.home_probability || prediction.home_prob || prediction.homeProb || 0),
+                        away_probability: parseFloat(prediction.away_probability || prediction.away_prob || prediction.awayProb || 0),
+                        draw_probability: parseFloat(prediction.draw_probability || prediction.draw_prob || prediction.drawProb || 0),
+                        result
+                    };
+                }
+                return null;
+            }).filter(Boolean);
+        }
+
+        function normalizeTeamName(name) {
+            if (!name) return '';
+            return name.toLowerCase()
+                .replace(/[^a-z0-9]/g, '')
+                .replace(/fc$/, '')
+                .replace(/fk$/, '')
+                .replace(/cf$/, '')
+                .replace(/^fc/, '')
+                .replace(/united/, 'utd')
+                .replace(/sporting/, '')
+                .replace(/football/, '')
+                .replace(/club/, '')
+                .trim();
+        }
+
+        function findMatchingResult(homeTeam, awayTeam, results) {
+            const normalizedHomeTeam = normalizeTeamName(homeTeam);
+            const normalizedAwayTeam = normalizeTeamName(awayTeam);
+            
+            return results.find(r => {
+                const resultHomeTeam = normalizeTeamName(r.homeTeam.name);
+                const resultAwayTeam = normalizeTeamName(r.awayTeam.name);
+                
+                return (resultHomeTeam.includes(normalizedHomeTeam) || normalizedHomeTeam.includes(resultHomeTeam)) &&
+                       (resultAwayTeam.includes(normalizedAwayTeam) || normalizedAwayTeam.includes(resultAwayTeam));
+            });
+        }
+
+        function displayPredictionsAndResults() {
+            const tbody = document.getElementById('predictionsResultsBody');
+            tbody.innerHTML = '';
+            
+            if (matchedPredictions.length === 0) {
+                const row = tbody.insertRow();
+                row.innerHTML = '<td colspan="5" class="text-center">No matched predictions available</td>';
+                return;
+            }
+
+            matchedPredictions.forEach(match => {
+                const row = tbody.insertRow();
+                const homeProb = (match.home_probability * 100).toFixed(1);
+                const awayProb = (match.away_probability * 100).toFixed(1);
+                const resultText = getResultText(match.result);
+                const predictionHit = getPredictionHit(match.prediction, match.result);
+                
+                row.innerHTML = `
+                    <td>
+                        ${match.home_team}
+                        
+                    </td>
+                    <td>
+                        ${match.away_team}
+                       
+                    </td>
+                    <td>${getPredictionText(match.prediction)}</td>
+                    <td>${resultText}</td>
+                    <td>${predictionHit}</td>
+                `;
+            });
+        }
+
+        function getResultText(result) {
+            if (!result) return 'Pending';
+            if (result.status.type === 'finished' || result.status.code === 100) {
+                return `${result.homeScore.current} - ${result.awayScore.current}`;
+            }
+            return result.status.description || 'Pending';
+        }
+
+        function updateAccuracyAndStats() {
+            let correct = 0;
+            let finished = 0;
+            const total = matchedPredictions.length;
+
+            matchedPredictions.forEach(({ prediction, result }) => {
+                if (result && (result.status.type === 'finished' || result.status.code === 100)) {
+                    finished++;
+                    if (isPredictionCorrect(prediction, result)) {
+                        correct++;
+                    }
+                }
+            });
+
+            const accuracy = finished > 0 ? ((correct / finished) * 100).toFixed(1) : 'N/A';
+            document.getElementById('accuracyValue').textContent = accuracy === 'N/A' ? accuracy : `${accuracy}%`;
+            document.getElementById('totalPredictions').textContent = total;
+            document.getElementById('correctPredictions').textContent = correct;
+        }
+
+        function getPredictionText(prediction) {
+            switch(prediction) {
+                case '1': return 'Home Win';
+                case 'X': return 'Draw';
+                case '2': return 'Away Win';
+                case '12': return 'Home or Away';
+                case '1X': return 'Home or Draw';
+                case 'X2': return 'Draw or Away';
+                default: return prediction;
+            }
+        }
+
+        function getPredictionHit(prediction, result) {
+            if (!result || (result.status.type !== 'finished' && result.status.code !== 100)) {
+                return 'Pending';
+            }
+            return isPredictionCorrect(prediction, result) ? '✅' : '❌';
+        }
+
+        function isPredictionCorrect(prediction, result) {
+            if (!result) return false;
+            
+            const homeScore = result.homeScore.current;
+            const awayScore = result.awayScore.current;
+            const homeWin = homeScore > awayScore;
+            const awayWin = awayScore > homeScore;
+            const draw = homeScore === awayScore;
+            
+            switch(prediction) {
+                case '1': return homeWin;
+                case '2': return awayWin;
+                case 'X': return draw;
+                case '12': return !draw;
+                case '1X': return homeWin || draw;
+                case 'X2': return awayWin || draw;
+                default: return false;
+            }
+        }
+
+        function filterTable() {
+            const filter = document.getElementById('tableFilter').value.toLowerCase();
+            const tbody = document.getElementById('predictionsResultsBody');
+            const rows = tbody.getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const homeTeam = rows[i].getElementsByTagName('td')[0];
+                const awayTeam = rows[i].getElementsByTagName('td')[1];
+                if (homeTeam && awayTeam) {
+                    const homeTeamText = homeTeam.textContent || homeTeam.innerText;
+                    const awayTeamText = awayTeam.textContent || awayTeam.innerText;
+                    if (homeTeamText.toLowerCase().indexOf(filter) > -1 || 
+                        awayTeamText.toLowerCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        function setupDataRefresh() {
+            console.log("Setting up data refresh...");
+            setInterval(() => {
+                console.log("Refreshing data...");
+                const datePicker = document.getElementById('datePicker');
+                fetchData(datePicker.value);
+            }, 60000); // Refresh every 1 minute
+        }
+
+        // Set up periodic data refresh
+        setupDataRefresh();
+    </script>
+</body>
+</html>

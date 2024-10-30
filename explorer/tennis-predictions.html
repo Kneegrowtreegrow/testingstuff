@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis Predictions & Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Montserrat Alt1';
+            src: url('./MontserratAlt1-Light.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-accent: #1a1a24;
+            --accent: #2cf583;
+            --accent-hover: #33FFFF;
+            --accent-dark: #00cccc;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(0, 255, 255, 0.1);
+            --glow: 0 0 20px rgba(0, 255, 255, 0.2);
+            --glow-strong: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+             font-family: 'Montserrat Alt1', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            padding: 2rem 0;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            box-shadow: var(--glow);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        .control-panel {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+        }
+        
+        .search-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .date-input {
+            background: var(--bg-accent);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            flex: 1;
+            max-width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        .date-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+        
+        .search-btn {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .search-btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+            box-shadow: var(--glow-strong);
+            transform: translateY(-2px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--bg-accent);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: var(--glow);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .matches-table {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+        }
+        
+        .matches-table table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .matches-table th {
+            background: var(--bg-accent);
+            color: var(--accent);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .matches-table td {
+            padding: 1.25rem 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .matches-table tr {
+            transition: all 0.3s ease;
+        }
+        
+        .matches-table tbody tr:hover {
+            background-color: var(--bg-accent);
+            box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-dark);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .control-panel {
+                padding: 1.5rem;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+            }
+            
+            .date-input {
+                max-width: 100%;
+            }
+            
+            .matches-table {
+                overflow-x: auto;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <header class="header">
+            <center><img src="https://overdogbets.com/logo.png" style="width:20%"></center>
+            <h1>TENNIS PREDICTIONS</h1>
+        </header>
+        
+        <section class="control-panel">
+            <div class="search-controls">
+                <input type="date" id="match-date" class="date-input">
+                <button id="search-button" class="search-btn">Search Matches</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-predictions">-</div>
+                    <div class="stat-label">Total Matches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="finished-matches">-</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="correct-predictions">-</div>
+                    <div class="stat-label">Accurate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="prediction-accuracy">-</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="matches-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Player 1</th>
+                        <th>Player 2</th>
+                        <th>Match Time</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody id="predictions-table">
+                    <!-- Dynamic content will be inserted here -->
+                </tbody>
+            </table>
+        </section>
+    </div>
+
+    <script>
+        
+        async function fetchPredictions(date) {
+    try {
+        const response = await fetch(`https://cdn.overdogbets.com/pussy/predictions/tennis/${date}.json`);
+        const predictions = await response.json();
+
+        console.log("Predictions fetched:", JSON.stringify(predictions, null, 2));
+
+        const results = await fetchResultsFromSofaScore(date);
+
+        const transformedPredictions = predictions.map(prediction => {
+            try {
+                return {
+                    away_team_name: `${prediction.Player2.split(' ').pop()} ${prediction.Player2.charAt(0)}.`,
+                    home_team_name: `${prediction.Player1.split(' ').pop()} ${prediction.Player1.charAt(0)}.`,
+                    player1_probability: prediction.player1_probability,
+                    player2_probability: prediction.player2_probability,
+                    match_date: prediction.date.day,
+                    match_timestamp: prediction.date.timestamp
+                };
+            } catch (error) {
+                console.error("Error transforming prediction:", error, prediction);
+                return null;
+            }
+        }).filter(Boolean);
+
+        displayPredictions(transformedPredictions, results);
+    } catch (error) {
+        console.error("Error fetching predictions:", error);
+        const tableBody = document.getElementById('predictions-table');
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="border-b border-[rgba(0,255,255,0.1)] px-6 py-4 text-center">
+                    Error loading predictions. Please try again later.
+                </td>
+            </tr>`;
+        updateSummary(0, 0, 0, 0);
+    }
+}
+
+async function fetchResultsFromSofaScore(date) {
+    try {
+        const url = `https://www.sofascore.com/api/v1/sport/tennis/scheduled-events/${date}`;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Raw SofaScore API response:", JSON.stringify(data, null, 2));
+
+        const matches = data.events || [];
+        console.log(`Number of matches found: ${matches.length}`);
+
+        return matches.map(match => ({
+            home_team_name: `${match.homeTeam.name}`,
+            away_team_name: `${match.awayTeam.name}`,
+            home_score: match.homeScore,
+            away_score: match.awayScore,
+            match_timestamp: match.startTimestamp,
+            status: match.status.type,
+            winnerCode: match.winnerCode
+        }));
+    } catch (error) {
+        console.error("Error fetching results from SofaScore:", error);
+        return [];
+    }
+}
+
+function getFormattedResult(result) {
+    if (!result || result.status === 'canceled') {
+        return 'Canceled';
+    }
+
+    if (result.status !== 'finished') {
+        return 'Not finished';
+    }
+
+    let homeSets = 0;
+    let awaySets = 0;
+    
+    for (let i = 1; i <= 5; i++) {
+        const homePeriodScore = result.home_score[`period${i}`];
+        const awayPeriodScore = result.away_score[`period${i}`];
+        if (homePeriodScore !== undefined && awayPeriodScore !== undefined) {
+            if (parseInt(homePeriodScore) > parseInt(awayPeriodScore)) {
+                homeSets++;
+            } else {
+                awaySets++;
+            }
+        } else {
+            break;
+        }
+    }
+
+    return `${homeSets}:${awaySets}`;
+}
+
+function findResultForMatch(prediction, results) {
+    const normalizeTeamName = (name) => {
+        if (typeof name !== 'string') {
+            console.warn(`Invalid team name: ${name}`);
+            return '';
+        }
+        return name.normalize('NFD')
+                   .replace(/[\u0300-\u036f]/g, '')
+                   .toLowerCase()
+                   .replace(/[^a-z]/g, '');
+    };
+
+    const simplifyName = (name) => {
+        return name.split(' ').map(part => part.charAt(0)).join('');
+    };
+
+    const homeTeamName = normalizeTeamName(prediction.home_team_name);
+    const awayTeamName = normalizeTeamName(prediction.away_team_name);
+    const homeTeamInitials = simplifyName(homeTeamName);
+    const awayTeamInitials = simplifyName(awayTeamName);
+
+    console.log(`Searching for match: ${homeTeamName} (${homeTeamInitials}) vs ${awayTeamName} (${awayTeamInitials})`);
+
+    const matchedResult = results.find(result => {
+        const resultHomeName = normalizeTeamName(result.home_team_name);
+        const resultAwayName = normalizeTeamName(result.away_team_name);
+        const resultHomeInitials = simplifyName(resultHomeName);
+        const resultAwayInitials = simplifyName(resultAwayName);
+
+        const homeMatch = 
+            homeTeamName === resultHomeName ||
+            homeTeamName.includes(resultHomeName) ||
+            resultHomeName.includes(homeTeamName) ||
+            homeTeamInitials === resultHomeInitials;
+
+        const awayMatch = 
+            awayTeamName === resultAwayName ||
+            awayTeamName.includes(resultAwayName) ||
+            resultAwayName.includes(awayTeamName) ||
+            awayTeamInitials === resultAwayInitials;
+
+        const specialCaseHome = (homeTeamName.includes('aguilar') && resultHomeName.includes('merida')) ||
+                               (homeTeamName.includes('merida') && resultHomeName.includes('aguilar'));
+        const specialCaseAway = (awayTeamName.includes('aguilar') && resultAwayName.includes('merida')) ||
+                               (awayTeamName.includes('merida') && resultAwayName.includes('aguilar'));
+
+        const mixedMatch = (homeMatch && specialCaseAway) || (awayMatch && specialCaseHome);
+
+        return (homeMatch && awayMatch) || mixedMatch;
+    });
+
+    if (!matchedResult) {
+        console.log(`No matching result found for: ${prediction.home_team_name} vs ${prediction.away_team_name}`);
+    }
+
+    return matchedResult;
+}
+
+function displayPredictions(predictions, results) {
+    const tableBody = document.getElementById('predictions-table');
+    tableBody.innerHTML = '';
+
+    if (predictions.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="4" class="border-b border-[rgba(0,255,255,0.1)] px-6 py-4 text-center">
+                    No predictions available for the selected date.
+                </td>
+            </tr>`;
+        updateSummary(0, 0, 0, 0);
+        return;
+    }
+
+    let correctPredictions = 0;
+    let totalFinishedMatches = 0;
+    let totalPredictions = 0;
+
+    predictions.forEach(prediction => {
+        const result = findResultForMatch(prediction, results);
+        
+        let resultText = 'Result not available';
+        let rowClass = '';
+        let confidenceStyle = '';
+
+        const player1Confidence = parseFloat(prediction.player1_probability);
+        const player2Confidence = parseFloat(prediction.player2_probability);
+        const totalConfidence = player1Confidence + player2Confidence;
+        const player1ConfidencePercent = (player1Confidence / totalConfidence * 100).toFixed(2);
+        const player2ConfidencePercent = (player2Confidence / totalConfidence * 100).toFixed(2);
+
+        const isUnsure = Math.abs(player1Confidence - player2Confidence) < 0.001;
+        const player1Higher = player1Confidence > player2Confidence;
+
+        if (isUnsure) {
+            resultText = 'AI UNSURE';
+            rowClass = 'background: rgba(95, 102, 37, 1);';
+            confidenceStyle = 'color: #00FFFF; opacity: 0.7;';
+        } else if (result) {
+            resultText = getFormattedResult(result);
+            
+            if (result.status === 'finished') {
+                totalFinishedMatches++;
+                totalPredictions++;
+                const predictionCorrect = (player1Higher && result.winnerCode === 1) || (!player1Higher && result.winnerCode === 2);
+                if (predictionCorrect) {
+                    correctPredictions++;
+                    rowClass = 'background: rgba(52, 247, 163, 0.3);';
+                } else {
+                    rowClass = 'background: rgba(255, 0, 0, 0.05);';
+                }
+            } else if (result.status === 'canceled') {
+                rowClass = 'background: rgba(255, 255, 255, 0.05);';
+            }
+        }
+
+        const matchTimeCET = convertToCET(prediction.match_timestamp);
+
+        const row = `
+            <tr style="${rowClass} transition: all 0.3s ease;">
+                <td class="border-b border-[rgba(0,255,255,0.1)] px-6 py-4">
+                    ${prediction.home_team_name} 
+                    <span style="${isUnsure ? confidenceStyle : (player1Higher ? 'color: #00FFFF; text-shadow: 0 0 10px rgba(0,255,255,0.3);' : 'color: rgba(255,255,255,0.6);')}; font-weight: 500;">
+                        (${player1ConfidencePercent}%)
+                    </span>
+                </td>
+                <td class="border-b border-[rgba(0,255,255,0.1)] px-6 py-4">
+                    ${prediction.away_team_name} 
+                    <span style="${isUnsure ? confidenceStyle : (!player1Higher ? 'color: #00FFFF; text-shadow: 0 0 10px rgba(0,255,255,0.3);' : 'color: rgba(255,255,255,0.6);')}; font-weight: 500;">
+                        (${player2ConfidencePercent}%)
+                    </span>
+                </td>
+                <td class="border-b border-[rgba(0,255,255,0.1)] px-6 py-4">${prediction.match_date} ${matchTimeCET}</td>
+                <td class="border-b border-[rgba(0,255,255,0.1)] px-6 py-4">${resultText}</td>
+            </tr>
+        `;
+        tableBody.innerHTML += row;
+    });
+
+    const accuracy = totalPredictions > 0 ? (correctPredictions / totalPredictions * 100).toFixed(2) : 0;
+    updateSummary(predictions.length, totalFinishedMatches, correctPredictions, accuracy);
+}
+
+function updateSummary(total, finished, correct, accuracy) {
+    document.getElementById('total-predictions').textContent = total;
+    document.getElementById('finished-matches').textContent = finished;
+    document.getElementById('correct-predictions').textContent = correct;
+    document.getElementById('prediction-accuracy').textContent = `${accuracy}%`;
+}
+
+function formatDate(dateInput) {
+    const date = new Date(dateInput);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function convertToCET(timestamp) {
+    const date = new Date(timestamp * 1000);
+    const cetTime = date.toLocaleString('pl-PL', {
+        timeZone: 'Europe/Berlin',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+    return cetTime;
+}
+
+function handleSearch() {
+    const dateInput = document.getElementById('match-date').value;
+    if (!dateInput) {
+        alert('Please select a date.');
+        return;
+    }
+    const formattedDate = formatDate(dateInput);
+    fetchPredictions(formattedDate);
+}
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('search-button').addEventListener('click', handleSearch);
+    
+    const today = new Date();
+    const dateInput = document.getElementById('match-date');
+    dateInput.value = formatDate(today);
+    handleSearch();
+});
+    </script>
+</body>
+</html>

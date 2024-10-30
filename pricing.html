@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OVERDOG Pricing with Enhanced Checkout</title>
+    <script async src="https://cdn.promotekit.com/promotekit.js" data-promotekit="df1274f3-25a7-4353-abea-f7ca73bc123b"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .logo {
+            margin-top: 20px;
+            width: 200px;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            filter: drop-shadow(-10px -10px 75px #4a4a4a);
+        }
+        .pricing-card {
+            width: 300px;
+            background-color: #121212;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(0, 255, 255, 0.3), 0 0 0 1px rgba(255, 192, 203, 0.3);
+            transition: transform 0.3s;
+        }
+        .pricing-card:hover {
+            transform: scale(1.05);
+        }
+        .header {
+            background: linear-gradient(to right, #FFE872, #00FFFF);
+            color: black;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .content {
+            padding: 20px;
+        }
+        .price {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: #888;
+            margin-right: 10px;
+        }
+        .select-plan {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #1E1E1E;
+            border: 1px solid #CCCCCC;
+            color: white;
+            border-radius: 5px;
+        }
+        .features {
+            padding-left: 0;
+            margin-bottom: 20px;
+        }
+        .features li {
+            list-style-type: none;
+            margin-bottom: 10px;
+            color: #CCCCCC;
+        }
+        .features li::before {
+            content: "✓";
+            color: #FFE872;
+            margin-right: 10px;
+        }
+        .features li:first-child {
+            color: #FFE872;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            border-radius: 50px;
+            width: 200px;
+            border: 2px solid white;
+            background-color: black;
+            color: white;
+            height: 40px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+            text-align: center;
+            line-height: 40px;
+            text-decoration: none;
+        }
+        .btn:hover {
+            background-color: white;
+            color: black;
+        }
+        .fine-print {
+            font-size: 10px;
+            color: #888;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .sales-pitch {
+            background-color: #1E1E1E;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #CCCCCC;
+        }
+        
+        /* Checkout Drawer Styles */
+        .checkout-drawer {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100%;
+            background-color: #121212;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+        .checkout-drawer.open {
+            right: 0;
+        }
+        .checkout-header {
+            background: linear-gradient(to right, #FFE872, #00FFFF);
+            color: black;
+            padding: 20px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+            font-size: 1.2em;
+        }
+        .close-btn {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: black;
+        }
+        .checkout-content {
+            padding: 20px;
+            color: #CCCCCC;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .checkout-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #8c8c8c;
+            background-color: #1E1E1E;
+            border-radius: 5px;
+        }
+        .checkout-item-details {
+            flex-grow: 1;
+        }
+        .checkout-item-name {
+            font-weight: bold;
+            color: #FFE872;
+        }
+        .checkout-item-price {
+            font-weight: bold;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #00FFFF;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 5px 10px;
+        }
+        .checkout-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #1E1E1E;
+            border-radius: 5px;
+        }
+        .discount-code {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .discount-code input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #CCCCCC;
+            background-color: #1E1E1E;
+            color: white;
+        }
+        .discount-code button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #FFE872;
+            color: black;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .discount-code button:hover {
+            background-color: #00FFFF;
+        }
+        .checkout-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            border:2px solid white;
+            background: black;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: opacity 0.3s;
+        }
+        .checkout-btn:hover {
+            opacity: 0.9;
+        }
+        .checkout-bottom {
+            margin-top: auto;
+        }
+        .discount-applied {
+            color: #FFE872;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .original-price {
+    text-decoration: line-through;
+    color: #888;
+    margin-right: 10px;
+}
+    </style>
+</head>
+
+<body>
+    <img src="./logo.png" alt="OVERDOG Logo" class="logo">
+    <p>GET IN THE GREEN</p>
+    <div class="container">
+        <div class="pricing-card">
+            <div class="header">OVERDOG BASE PACKAGE</div>
+            <div class="content">
+                <div class="price">
+                    <span class="original-price" id="originalPrice">$34.99</span>
+                    <span class="current-price" id="currentPrice">$27.99</span>
+                </div>
+                <select class="select-plan" id="planSelect" onchange="updatePricing()">
+                    <option value="1">Pay Every 1 Month</option>
+                    <option value="3">Pay Every 3 Months</option>
+                    <option value="6">Pay Every 6 Months</option>
+                </select>
+                <ul class="features">
+                    <li>Access To All AI Predictions</li>
+                    <li>Live Scoreboards</li>
+                    <li>Sports Betting Courses</li>
+                    <li>Automatic Bet Tracking</li>
+                </ul>
+                <div class="fine-print">
+                    Get reimbursed up to $25 if your first OVERDOG bet loses, no questions asked. Terms and Conditions apply*
+                </div>
+                <center><a href="#" style="margin-top:94px" class="btn" onclick="openCheckout('base')">BUY NOW</a></center>
+            </div>
+        </div>
+        <div class="pricing-card">
+            <div class="header">ADD-ONS PACKAGE</div>
+            <div class="content">
+                <div class="price">
+                    <span class="current-price">+$14.99</span>
+                    <span>/month</span>
+                </div>
+                <ul class="features">
+                    <li>AutoBet ™</li>
+                    <li>Live Predictions</li>
+                    <li>Advanced Bet Tracking Metrics</li>
+                    <li>Arbitrage Tools</li>
+                    <li>Player Props Predictions</li>
+                </ul>
+                <div class="sales-pitch">
+                    DON'T SETTLE FOR 'GOOD ENOUGH.' UPGRADING TO THE EXTRA FEATURES IS THE STRATEGIC CHOICE FOR THOSE WHO WANT TO DOMINATE AND ACHIEVE PEAK PERFORMANCE. IT'S A GAME-CHANGER THAT WILL PUT YOU IN THE WINNER'S CIRCLE.
+                </div>
+                <center><a href="#" class="btn" onclick="openCheckout('addOns')">ADD PACKAGE</a></center>
+            </div>
+        </div>
+    </div>
+    <!-- Checkout Drawer -->
+<div class="checkout-drawer" id="checkoutDrawer">
+    <div class="checkout-header">
+        Checkout
+        <button class="close-btn" onclick="closeCheckout()">×</button>
+    </div>
+    <div class="checkout-content">
+        <div id="checkoutItems"></div>
+        <div class="checkout-bottom">
+            <div id="referralMessage" class="discount-applied"></div>
+            <div class="checkout-total">
+                <span>Total</span>
+                <span id="totalPrice">$27.99</span>
+            </div>
+            <button class="checkout-btn" onclick="checkout()">
+                Complete Purchase
+            </button>
+        </div>
+    </div>
+</div>
+    <script>
+   // First, add this price configuration at the top with the other variables
+let cart = {
+    basePackage: { name: 'OVERDOG Base Package', price: 27.99, added: false },
+    addOns: { name: 'Add-Ons Package', pricePerMonth: 14.99, added: false }
+};
+// Price configuration object
+const basePrices = {
+    'monthly': {
+        'baseOnly': { price: 27.99, id: "price_1Pi7biBlxMLUFDUFGgPqT8Nx" },
+        'withAddons': { price: 42.98, id: "price_1PiJ2DBlxMLUFDUFS1yF3unv" }
+    },
+    'quarterly': {
+        'baseOnly': { price: 74.99, id: "price_1PiJ9lBlxMLUFDUFUaGUXX60" },
+        'withAddons': { price: 119.96, id: "price_1PiJ55BlxMLUFDUFWudKwx8a" }
+    },
+    'biannual': {
+        'baseOnly': { price: 159.99, id: "price_1PiJCFBlxMLUFDUFbsEKnRw4" },
+        'withAddons': { price: 249.93, id: "price_1PiJ8GBlxMLUFDUFyfB75dzN" }
+    }
+};
+    let discountApplied = false;
+    let currentBillingPeriod = 1;
+
+    function updatePricing() {
+        const planSelect = document.getElementById("planSelect");
+        const originalPriceElement = document.getElementById("originalPrice");
+        const currentPriceElement = document.getElementById("currentPrice");
+
+        let originalPrice, currentPrice;
+
+        switch (planSelect.value) {
+            case "1":
+                originalPrice = 34.99;
+                currentPrice = 27.99;
+                currentBillingPeriod = 1;
+                break;
+            case "3":
+                originalPrice = 83.97;
+                currentPrice = 74.99;
+                currentBillingPeriod = 3;
+                break;
+            case "6":
+                originalPrice = 167.94;
+                currentPrice = 159.99;
+                currentBillingPeriod = 6;
+                break;
+        }
+
+        originalPriceElement.textContent = `$${originalPrice.toFixed(2)}`;
+        currentPriceElement.textContent = `$${currentPrice.toFixed(2)}`;
+
+        cart.basePackage.price = currentPrice;
+        updateCheckout();
+    }
+
+    function openCheckout(packageType) {
+        document.getElementById("checkoutDrawer").classList.add("open");
+        if (packageType === 'base') {
+            cart.basePackage.added = true;
+        } else if (packageType === 'addOns') {
+            cart.addOns.added = true;
+        }
+        updateCheckout();
+    }
+
+    function closeCheckout() {
+        document.getElementById("checkoutDrawer").classList.remove("open");
+    }
+
+    function removeItem(item) {
+        cart[item].added = false;
+        updateCheckout();
+    }
+
+    function applyDiscount() {
+        const discountCode = document.getElementById("discountCode").value;
+        if (discountCode.toUpperCase() === "SAVE10" && !discountApplied) {
+            discountApplied = true;
+            document.getElementById("discountApplied").innerText = "10% discount applied!";
+            updateCheckout();
+        } else if (discountApplied) {
+            alert("Discount already applied");
+        } else {
+            alert("Invalid discount code");
+        }
+    }
+function updateCheckout() {
+    const checkoutItems = document.getElementById("checkoutItems");
+    const referralMessage = document.getElementById("referralMessage");
+    checkoutItems.innerHTML = '';
+
+    let total = 0;
+    let originalTotal = 0;
+    const hasReferral = window.promotekit_referral !== undefined && window.promotekit_referral !== null;
+    const isEligibleForDiscount = currentBillingPeriod === 1 || currentBillingPeriod === 3;
+
+    if (cart.basePackage.added) {
+        const basePrice = cart.basePackage.price;
+        originalTotal += basePrice;
+        // Apply 50% off the entire price for eligible plans
+        const discountedPrice = (hasReferral && isEligibleForDiscount) ? 
+            basePrice * 0.5 : 
+            basePrice;
+            
+        const basePackageHtml = `
+            <div class="checkout-item">
+                <div class="checkout-item-details">
+                    <div class="checkout-item-name">${cart.basePackage.name}</div>
+                    <div class="checkout-item-price">
+                        ${(hasReferral && isEligibleForDiscount) ? 
+                            `<span class="original-price">$${basePrice.toFixed(2)}</span>` : 
+                            ''
+                        }
+                        <span>$${discountedPrice.toFixed(2)}</span>
+                    </div>
+                </div>
+                <button class="remove-btn" onclick="removeItem('basePackage')">×</button>
+            </div>
+        `;
+        checkoutItems.innerHTML += basePackageHtml;
+        total += discountedPrice;
+    }
+
+    if (cart.addOns.added) {
+        const addOnsPrice = cart.addOns.pricePerMonth * currentBillingPeriod;
+        originalTotal += addOnsPrice;
+        // Apply 50% off the entire add-ons price for eligible plans
+        const discountedAddOnsPrice = (hasReferral && isEligibleForDiscount) ? 
+            addOnsPrice * 0.5 : 
+            addOnsPrice;
+            
+        const addOnsHtml = `
+            <div class="checkout-item">
+                <div class="checkout-item-details">
+                    <div class="checkout-item-name">${cart.addOns.name}</div>
+                    <div class="checkout-item-price">
+                        ${(hasReferral && isEligibleForDiscount) ? 
+                            `<span class="original-price">$${addOnsPrice.toFixed(2)}</span>` : 
+                            ''
+                        }
+                        <span>$${discountedAddOnsPrice.toFixed(2)}</span>
+                    </div>
+                </div>
+                <button class="remove-btn" onclick="removeItem('addOns')">×</button>
+            </div>
+        `;
+        checkoutItems.innerHTML += addOnsHtml;
+        total += discountedAddOnsPrice;
+    }
+
+    if (hasReferral) {
+        if (isEligibleForDiscount) {
+            referralMessage.innerHTML = '🎉 You\'re saving 50% off with a friend referral!';
+            referralMessage.style.display = 'block';
+        } else {
+            referralMessage.innerHTML = '❗ The 50% referral discount is only available for 1-month and 3-month plans';
+            referralMessage.style.display = 'block';
+        }
+    } else {
+        referralMessage.style.display = 'none';
+    }
+
+    // Update total with original and discounted prices if there's a referral
+    const totalElement = document.getElementById("totalPrice");
+    if (hasReferral && isEligibleForDiscount) {
+        totalElement.innerHTML = `
+            <span class="original-price">$${originalTotal.toFixed(2)}</span>
+            <span>$${total.toFixed(2)}</span>
+        `;
+    } else {
+        totalElement.innerHTML = `$${total.toFixed(2)}`;
+    }
+}
+function checkout() {
+    // Get referral status
+    const hasReferral = window.promotekit_referral !== undefined && window.promotekit_referral !== null;
+    
+    // Determine current plan configuration
+    let planType;
+    if (currentBillingPeriod === 1) planType = 'monthly';
+    else if (currentBillingPeriod === 3) planType = 'quarterly';
+    else planType = 'biannual';
+
+    let packageType = cart.addOns.added ? 'withAddons' : 'baseOnly';
+    
+    // Get base price configuration
+    let priceConfig = basePrices[planType][packageType];
+    let finalPrice = priceConfig.price;
+
+    // Verify the final price matches our expected total
+    const displayedTotal = parseFloat(document.getElementById("totalPrice").innerText.replace('$', ''));
+    if (Math.abs(displayedTotal - finalPrice) > 0.01) {
+        alert("Price calculation error. Please refresh the page and try again.");
+        return;
+    }
+    console.log(priceConfig.id)
+
+    // Get the auth token with error handling
+    let authToken;
+    try {
+        const authData = localStorage.getItem('sb-api-auth-token');
+        if (!authData) {
+            alert("Please log in to continue with your purchase.");
+            return;
+        }
+        const parsedAuthData = JSON.parse(authData);
+        if (!parsedAuthData || !parsedAuthData.access_token) {
+            alert("Invalid authentication data. Please log in again.");
+            return;
+        }
+        authToken = parsedAuthData.access_token;
+    } catch (error) {
+        console.error('Auth token parsing error:', error);
+        alert("Authentication error. Please try logging in again.");
+        return;
+    }
+
+    // Prepare the API request
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${authToken}`);
+
+    const raw = JSON.stringify({
+        "priceId": priceConfig.id,
+        "referral": window.promotekit_referral,
+    });
+
+    const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow"
+    };
+
+    // Add error handling for the fetch request
+    fetch("https://cdn.overdogbets.com/create-checkout-session", requestOptions)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            if (!result.url) {
+                throw new Error('No checkout URL received');
+            }
+            window.location.href = result.url;
+        })
+        .catch(error => {
+            console.error('Checkout error:', error);
+            alert("There was an error processing your checkout. Please try again.");
+        });
+}
+
+    // Initialize the pricing
+    updatePricing();
+    </script>
